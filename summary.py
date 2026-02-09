@@ -87,6 +87,11 @@ if uploaded_file is not None:
         if pd.isna(val):
             return False
         return str(val).strip().endswith("99")
+    
+    def is_na(val):
+        if pd.isna(val):
+            return False
+        return str(val).strip().endswith("98")
 
     df["DK_count"] = df[question_cols].apply(
         lambda row: sum(is_dk(v) for v in row),
@@ -98,6 +103,10 @@ if uploaded_file is not None:
         axis=1
     )
 
+    df["NA_count"] = df[question_cols].apply(
+        lambda row: sum(is_na(v) for v in row),
+        axis=1
+    )
     # -----------------------------
     # Build long interviewer table
     # -----------------------------
@@ -113,7 +122,7 @@ if uploaded_file is not None:
         if id_col:
             temp = df[
                 [id_col, name_col,
-                 "duration_minutes", "DK_count", "RF_count"]
+                 "duration_minutes", "DK_count", "RF_count", "NA_count"]
                 + question_cols
             ].copy()
 
@@ -143,7 +152,8 @@ if uploaded_file is not None:
             max_duration_minutes=("duration_minutes", "max"),
             avg_questions=("questions_answered", "mean"),
             total_DK=("DK_count", "sum"),
-            total_RF=("RF_count", "sum")
+            total_RF=("RF_count", "sum"),
+            total_NA=("NA_count", "sum")
         )
     )
 
@@ -168,7 +178,7 @@ if uploaded_file is not None:
     final_df["avg_questions"] = final_df["avg_questions"].round(0).astype(int)
     final_df["total_DK"] = final_df["total_DK"].astype(int)
     final_df["total_RF"] = final_df["total_RF"].astype(int)
-    
+    final_df["total_NA"] = final_df["total_NA"].astype(int)
 
     # ==========================================================
     #  AVERAGE DURATION & QUESTIONS PER INTERVIEWER (SECOND)
@@ -179,7 +189,7 @@ if uploaded_file is not None:
         final_df[
             ["IntID", "IntName", "total_interviews",
              "min_duration_display", "avg_duration_display", "max_duration_display",
-             "avg_questions", "total_DK", "total_RF"]
+             "avg_questions", "total_DK", "total_RF", "total_NA"]
         ]
     )
 
